@@ -53,7 +53,7 @@
                        "The Iron Yard"]
                       [:br]
                       (people-html)                         ;call people-html method
-                      ]])}Disp
+                      ]])}
   )                                                         ;end of handler
 
 (defn -main [& args]                                        ;set your port number to run-jetty
