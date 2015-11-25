@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.walk :as walk]
             [ring.adapter.jetty :as j]                      ;helps run jetty server for online
+            [hiccup.core :as h]                             ;add hiccup
             )
   (:gen-class))
 
@@ -31,11 +32,28 @@
     )                                                        ;end of let
   )                                                         ;end of read-people function
 
+(defn people-html []
+  (let [people (read-people)]
+    (map (fn [line]
+           [:p                          ;:p is for paragraph format in html
+            (str (:first_name line)     ;Convert first name to String with " " and last name
+                 " "                    ;space in between first name and last name
+                 (:last_name line))     ;last name
+            ])
+         people))
+  )
+
 
 (defn handler [request]                                     ;request is the parameter
-  {:status 200                                              ;status 200 is "success"
+  {:status  200                                              ;status 200 is "success"
    :headers {"Content-Type" "text/html"}                    ;Content is now html format
-   :body "<html><body>Hello, Test Word!</body></html>"}
+   :body    (h/html [:html
+                     [:body
+                      [:a {:href "http://www.theironyard.com"} ;Making a url link with "The Iron Yard" as the link text
+                       "The Iron Yard"]
+                      [:br]
+                      (people-html)                         ;call people-html method
+                      ]])}Disp
   )                                                         ;end of handler
 
 (defn -main [& args]                                        ;set your port number to run-jetty
