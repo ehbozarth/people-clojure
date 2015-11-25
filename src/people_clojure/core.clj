@@ -1,9 +1,11 @@
 (ns people-clojure.core
   (:require [clojure.string :as str]
-            [clojure.walk :as walk])
+            [clojure.walk :as walk]
+            [ring.adapter.jetty :as j]                      ;helps run jetty server for online
+            )
   (:gen-class))
 
-(defn -main [& args]
+(defn read-people []
   (let [people (slurp "people.csv")                         ;slur reads in file
         people (str/split-lines people)                     ;str is set from top in requirements split into seperate string lines
         people (map (fn [line]
@@ -15,15 +17,31 @@
                       (interleave header line))             ;makes the header line the key
                     people)                                 ;;makes people the 2nd argument and the values
         people (map (fn [line]
-                      (apply hash-map line))                ;setting has-map keys to values
-                      people)
+                      (apply hash-map line))                ;setting hash-map keys to values
+                    people)
         people (walk/keywordize-keys people)                ;make string keys into clojure keywords
         people (filter (fn [line]
                          (= "Brazil" (:country line)))      ;Filter through countries with "Brazil" :country is keyword
                        people)
         ]
-         (spit "filtered_people.edn"                        ;spit data into a new clojure file
-               (pr-str people)
-               )                                            ;end of spit
-          )                                                 ;end of let
+    #_(spit "filtered_people.edn"                             ;spit data into a new clojure file
+          (pr-str people)
+          )                                                  ;end of spit
+    people
+    )                                                        ;end of let
+  )                                                         ;end of read-people function
+
+
+(defn handler [request]                                     ;request is the parameter
+  {:status 200                                              ;status 200 is "success"
+   :headers {"Content-Type" "text/html"}                    ;Content is now html format
+   :body "<html><body>Hello, Test Word!</body></html>"}
+  )                                                         ;end of handler
+
+(defn -main [& args]                                        ;set your port number to run-jetty
+   (j/run-jetty #'handler {:port 3000 :join? false})        ;join? false runs server on sepreate thread to run in server and REPL
+  ;#' acts a refresh and says use most recent model
   )                                                         ;end of main
+
+
+
